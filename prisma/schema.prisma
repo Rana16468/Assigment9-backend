@@ -1,0 +1,133 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+
+  id String @id  @default(uuid())
+  name String
+  email String @unique
+  password String
+  role UserRole 
+  status UserStatus @default(ACTIVE)
+  needPasswordChange Boolean @default(true)
+  createdAt DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  adoptionRequests  AdoptionRequest[]
+  @@map("users")
+}
+
+model Pet {
+   id String @id  @default(uuid())
+   name String
+   species Species
+   breed String
+   age String
+   size Size
+   location String 
+   description String
+   temperament String
+   medicalHistory String
+   adoptionRequirements String
+   healthstatus Healthstatus
+   specialneeds Specialneeds
+   contractNumber String
+   gender Gender
+   createdAt DateTime @default(now())
+   updatedAt  DateTime @updatedAt
+   photos      Photos []
+   adoptionRequests     AdoptionRequest[]
+   shelters Shelter?
+   @@map("pets") // // one to many relation ship  Photos Table
+
+}
+
+model AdoptionRequest {
+  id                   String   @id @default(uuid())
+  userId                String
+  petId                 String
+  status                Status @default(PENDING)
+  phonenumber           String
+  petOwnershipExperience String
+  createdAt DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  user                  User     @relation(fields: [userId], references: [id])
+  pet                   Pet      @relation(fields: [petId], references: [id])
+  @@map("adoptionRequests")
+}
+
+model Photos {
+   id                   String   @id @default(uuid())
+   petId                String
+   photo                String
+   createdAt DateTime @default(now())
+   updatedAt  DateTime @updatedAt
+   pet                   Pet      @relation(fields: [petId], references: [id]) // one to many relation ship Pet Table
+   @@map("photos")
+}
+
+model Shelter {
+    id                   String   @id @default(uuid())
+    petId                String @unique
+    name                 String
+    contactInfo          String
+    pet                   Pet      @relation(fields: [petId], references: [id])
+    createdAt DateTime @default(now())
+    updatedAt  DateTime @updatedAt
+    @@map("shelters")
+
+}
+
+enum UserRole {
+  ADMIN
+  USER
+}
+enum Species {
+  cat
+  dog
+}
+enum Size {
+  small
+  medium
+  large
+}
+enum Healthstatus {
+  vaccinated
+  spayed
+  neutered
+}
+
+enum Status {
+  PENDING
+  APPROVED
+  REJECTED
+}
+enum Specialneeds {
+  physical
+  behavioral
+  medical
+  dietary 
+
+}
+enum Gender {
+  MALE
+  FEMALE
+}
+
+enum  UserStatus {
+  ACTIVE
+  DEACTIVATE
+  
+
+}
